@@ -30,6 +30,7 @@ export async function getScrapeJobs(): Promise<ScrapeJobWithUser[]> {
 export async function createScrapeJob(data: {
   query: string
   city: string
+  pages?: number
 }): Promise<{ id?: string; count?: number; api?: string; error?: string }> {
   const supabase = await createClient()
   const {
@@ -53,7 +54,7 @@ export async function createScrapeJob(data: {
   const jobData = job as unknown as { id: string }
 
   // Process the job directly (no more HTTP self-call)
-  const result = await processJob(jobData.id)
+  const result = await processJob(jobData.id, data.pages || 1)
 
   revalidatePath('/scraping')
   revalidatePath('/entreprises')

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
@@ -10,8 +11,8 @@ import {
   Users,
   Calendar,
   Search,
+  FileText,
   Settings,
-  Zap,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react'
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Tableau de bord', href: '/tableau-de-bord', icon: LayoutDashboard },
   { name: 'Entreprises', href: '/entreprises', icon: Building2 },
   { name: 'Contacts', href: '/contacts', icon: Users },
+  { name: 'Devis', href: '/devis', icon: FileText },
   { name: 'Calendrier', href: '/calendrier', icon: Calendar },
   { name: 'Scraping', href: '/scraping', icon: Search },
   { name: 'Paramètres', href: '/parametres', icon: Settings },
@@ -52,9 +54,13 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="h-16 flex items-center gap-2 px-4 border-b border-white/[0.06]">
-        <div className="p-1.5 rounded-lg bg-primary/20 glow-indigo shrink-0">
-          <Zap className="h-5 w-5 text-primary" />
-        </div>
+        <Image
+          src="/logo-kluster.png"
+          alt="Kluster"
+          width={36}
+          height={36}
+          className="shrink-0 rounded-lg"
+        />
         {!collapsed && (
           <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent whitespace-nowrap overflow-hidden">
             Kluster

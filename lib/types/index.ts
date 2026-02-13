@@ -14,6 +14,10 @@ export type ScrapeStatusEnum = Database['public']['Enums']['scrape_status']
 export type WebsiteStatus = Database['public']['Enums']['website_status']
 export type WebsiteQuality = Database['public']['Enums']['website_quality']
 
+export type Quote = Database['public']['Tables']['quotes']['Row']
+export type QuoteLine = Database['public']['Tables']['quote_lines']['Row']
+export type QuoteStatus = Quote['status']
+
 export type CompanyInsert = Database['public']['Tables']['companies']['Insert']
 export type CompanyUpdate = Database['public']['Tables']['companies']['Update']
 export type ContactInsert = Database['public']['Tables']['contacts']['Insert']

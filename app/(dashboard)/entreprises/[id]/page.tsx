@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { getCompany } from '@/lib/actions/companies'
 import { getContactsByCompany } from '@/lib/actions/contacts'
+import { getQuotesByCompany } from '@/lib/actions/quotes'
+import { QuoteMiniList } from '@/components/quotes/quote-mini-list'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +18,7 @@ import {
   Monitor,
   Smartphone,
   Users,
+  FileText,
 } from 'lucide-react'
 import {
   WEBSITE_STATUS_CONFIG,
@@ -30,9 +33,10 @@ export default async function CompanyDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [company, contacts] = await Promise.all([
+  const [company, contacts, quotes] = await Promise.all([
     getCompany(id),
     getContactsByCompany(id),
+    getQuotesByCompany(id),
   ])
 
   return (
@@ -210,6 +214,36 @@ export default async function CompanyDetailPage({
             <CardTitle>Informations</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
+            {company.siret && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">SIRET</span>
+                <span className="font-mono">{company.siret}</span>
+              </div>
+            )}
+            {company.legal_name && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Raison sociale</span>
+                <span>{company.legal_name}</span>
+              </div>
+            )}
+            {company.legal_form && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Forme juridique</span>
+                <span>{company.legal_form}</span>
+              </div>
+            )}
+            {company.naf_label && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Activité</span>
+                <span>{company.naf_label}</span>
+              </div>
+            )}
+            {company.vat_number && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">TVA intracom.</span>
+                <span className="font-mono text-xs">{company.vat_number}</span>
+              </div>
+            )}
             {company.rating !== null && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Note Google</span>
@@ -292,6 +326,22 @@ export default async function CompanyDetailPage({
                 })}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Devis */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Devis ({quotes.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <QuoteMiniList
+              quotes={quotes}
+              newQuoteHref={`/devis/nouveau?company=${id}`}
+            />
           </CardContent>
         </Card>
       </div>

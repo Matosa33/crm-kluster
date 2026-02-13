@@ -7,7 +7,8 @@ function getAdminSupabase() {
   )
 }
 
-async function scrapeWithSerper(query: string, city: string) {
+// Serper Maps API: ~20 results per page, supports page param (1-indexed)
+async function scrapeSerperPage(query: string, city: string, page: number) {
   const apiKey = process.env.SERPER_API_KEY
   if (!apiKey) return null
 
@@ -21,40 +22,71 @@ async function scrapeWithSerper(query: string, city: string) {
       q: `${query} ${city} France`,
       gl: 'fr',
       hl: 'fr',
+      page,
     }),
   })
 
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    console.error(`[Serper] Erreur ${res.status}: ${text}`)
+    console.error(`[Serper] Erreur page ${page} - ${res.status}: ${text}`)
     return null
   }
 
   const data = await res.json()
-  return { results: data.places || [], api: 'serper' as const }
+  return (data.places || []) as Record<string, unknown>[]
 }
 
-async function scrapeWithSerpAPI(query: string, city: string) {
+async function scrapeWithSerper(query: string, city: string, pages: number) {
+  const apiKey = process.env.SERPER_API_KEY
+  if (!apiKey) return null
+
+  const allResults: Record<string, unknown>[] = []
+
+  for (let page = 1; page <= pages; page++) {
+    const results = await scrapeSerperPage(query, city, page)
+    if (!results || results.length === 0) break
+    allResults.push(...results)
+    // Small delay between pages to be respectful
+    if (page < pages) await new Promise((r) => setTimeout(r, 300))
+  }
+
+  if (allResults.length === 0) return null
+  return { results: allResults, api: 'serper' as const }
+}
+
+// SerpAPI: supports start parameter for offset (0, 20, 40...)
+async function scrapeWithSerpAPI(query: string, city: string, pages: number) {
   const apiKey = process.env.SERPAPI_API_KEY
   if (!apiKey) return null
 
-  const params = new URLSearchParams({
-    engine: 'google_maps',
-    q: `${query} ${city} France`,
-    hl: 'fr',
-    gl: 'fr',
-    api_key: apiKey,
-  })
+  const allResults: Record<string, unknown>[] = []
 
-  const res = await fetch(`https://serpapi.com/search?${params}`)
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    console.error(`[SerpAPI] Erreur ${res.status}: ${text}`)
-    return null
+  for (let page = 0; page < pages; page++) {
+    const params = new URLSearchParams({
+      engine: 'google_maps',
+      q: `${query} ${city} France`,
+      hl: 'fr',
+      gl: 'fr',
+      start: String(page * 20),
+      api_key: apiKey,
+    })
+
+    const res = await fetch(`https://serpapi.com/search?${params}`)
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      console.error(`[SerpAPI] Erreur page ${page} - ${res.status}: ${text}`)
+      break
+    }
+
+    const data = await res.json()
+    const results = (data.local_results || []) as Record<string, unknown>[]
+    if (results.length === 0) break
+    allResults.push(...results)
+    if (page < pages - 1) await new Promise((r) => setTimeout(r, 300))
   }
 
-  const data = await res.json()
-  return { results: data.local_results || [], api: 'serpapi' as const }
+  if (allResults.length === 0) return null
+  return { results: allResults, api: 'serpapi' as const }
 }
 
 export interface ProcessJobResult {
@@ -64,7 +96,7 @@ export interface ProcessJobResult {
   api?: string
 }
 
-export async function processJob(jobId: string): Promise<ProcessJobResult> {
+export async function processJob(jobId: string, pages: number = 1): Promise<ProcessJobResult> {
   const supabase = getAdminSupabase()
 
   // Get job
@@ -89,10 +121,10 @@ export async function processJob(jobId: string): Promise<ProcessJobResult> {
     let scrapeResult: {
       results: Record<string, unknown>[]
       api: string
-    } | null = await scrapeWithSerper(job.query, job.city)
+    } | null = await scrapeWithSerper(job.query, job.city, pages)
 
     if (!scrapeResult || scrapeResult.results.length === 0) {
-      scrapeResult = await scrapeWithSerpAPI(job.query, job.city)
+      scrapeResult = await scrapeWithSerpAPI(job.query, job.city, pages)
     }
 
     if (!scrapeResult || scrapeResult.results.length === 0) {
@@ -109,9 +141,18 @@ export async function processJob(jobId: string): Promise<ProcessJobResult> {
       return { success: true, count: 0, api: 'aucun résultat' }
     }
 
+    // Deduplicate by name (same business can appear on multiple pages)
+    const seen = new Set<string>()
+    const uniqueResults = scrapeResult.results.filter((place) => {
+      const name = String(place.title || place.name || '').toLowerCase().trim()
+      if (!name || seen.has(name)) return false
+      seen.add(name)
+      return true
+    })
+
     // Insert companies (upsert to avoid duplicates)
     let count = 0
-    for (const place of scrapeResult.results) {
+    for (const place of uniqueResults) {
       const companyData = {
         name: place.title || place.name || 'Sans nom',
         business_type: job.query,

@@ -18,6 +18,7 @@ export function ScrapeForm() {
   const [citySearch, setCitySearch] = useState('')
   const [showCities, setShowCities] = useState(false)
   const [businessType, setBusinessType] = useState('')
+  const [pages, setPages] = useState(3)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{
     type: 'success' | 'error'
@@ -49,7 +50,7 @@ export function ScrapeForm() {
     setResult(null)
 
     try {
-      const res = await createScrapeJob({ query: businessType, city: city.name })
+      const res = await createScrapeJob({ query: businessType, city: city.name, pages })
 
       if (res.error) {
         setResult({ type: 'error', message: res.error })
@@ -74,7 +75,7 @@ export function ScrapeForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2" ref={cityRef}>
           <Label>Ville</Label>
           <div className="relative">
@@ -130,6 +131,29 @@ export function ScrapeForm() {
               <option key={type} value={type} />
             ))}
           </datalist>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Profondeur</Label>
+          <div className="flex items-center gap-2">
+            {[1, 3, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setPages(n)}
+                className={`flex-1 text-sm py-2 rounded-lg border transition-colors ${
+                  pages === n
+                    ? 'bg-primary/15 text-primary border-primary/30'
+                    : 'bg-white/[0.04] text-muted-foreground border-white/10 hover:bg-white/[0.08]'
+                }`}
+              >
+                ~{n * 20}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            {pages} page{pages > 1 ? 's' : ''} = ~{pages * 20} résultats max
+          </p>
         </div>
       </div>
 

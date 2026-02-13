@@ -294,6 +294,17 @@ DO $$ BEGIN
   ALTER TABLE activities ADD COLUMN IF NOT EXISTS location TEXT;
   ALTER TABLE activities ADD COLUMN IF NOT EXISTS attendees TEXT[] DEFAULT '{}';
   ALTER TABLE activities ADD COLUMN IF NOT EXISTS meeting_notes TEXT;
+  -- Migration 005: Company legal fields
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS siret TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS siren TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS legal_name TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS legal_form TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS naf_code TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS naf_label TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS vat_number TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS capital TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS rcs_city TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS headquarters_address TEXT;
 END $$;
 
 -- ============================================

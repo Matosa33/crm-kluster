@@ -58,6 +58,16 @@ export type Database = {
           created_at: string
           updated_at: string
           created_by: string | null
+          siret: string | null
+          siren: string | null
+          legal_name: string | null
+          legal_form: string | null
+          naf_code: string | null
+          naf_label: string | null
+          vat_number: string | null
+          capital: string | null
+          rcs_city: string | null
+          headquarters_address: string | null
         }
         Insert: {
           id?: string
@@ -81,6 +91,16 @@ export type Database = {
           created_at?: string
           updated_at?: string
           created_by?: string | null
+          siret?: string | null
+          siren?: string | null
+          legal_name?: string | null
+          legal_form?: string | null
+          naf_code?: string | null
+          naf_label?: string | null
+          vat_number?: string | null
+          capital?: string | null
+          rcs_city?: string | null
+          headquarters_address?: string | null
         }
         Update: {
           name?: string
@@ -101,6 +121,16 @@ export type Database = {
           is_mobile_friendly?: boolean | null
           website_notes?: string | null
           updated_at?: string
+          siret?: string | null
+          siren?: string | null
+          legal_name?: string | null
+          legal_form?: string | null
+          naf_code?: string | null
+          naf_label?: string | null
+          vat_number?: string | null
+          capital?: string | null
+          rcs_city?: string | null
+          headquarters_address?: string | null
         }
         Relationships: [
           {
@@ -341,6 +371,160 @@ export type Database = {
             columns: ['created_by']
             isOneToOne: false
             referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          id: string
+          reference: string
+          company_id: string | null
+          contact_id: string | null
+          status: 'brouillon' | 'envoye' | 'accepte' | 'refuse' | 'expire'
+          issued_at: string | null
+          valid_until: string | null
+          accepted_at: string | null
+          total_ht: number
+          discount_percent: number
+          discount_amount: number
+          total_after_discount: number
+          tva_rate: number
+          total_tva: number
+          total_ttc: number
+          client_name: string | null
+          client_address: string | null
+          client_siret: string | null
+          client_vat_number: string | null
+          notes: string | null
+          conditions: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          reference: string
+          company_id?: string | null
+          contact_id?: string | null
+          status?: 'brouillon' | 'envoye' | 'accepte' | 'refuse' | 'expire'
+          issued_at?: string | null
+          valid_until?: string | null
+          accepted_at?: string | null
+          total_ht?: number
+          discount_percent?: number
+          discount_amount?: number
+          total_after_discount?: number
+          tva_rate?: number
+          total_tva?: number
+          total_ttc?: number
+          client_name?: string | null
+          client_address?: string | null
+          client_siret?: string | null
+          client_vat_number?: string | null
+          notes?: string | null
+          conditions?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          reference?: string
+          company_id?: string | null
+          contact_id?: string | null
+          status?: 'brouillon' | 'envoye' | 'accepte' | 'refuse' | 'expire'
+          issued_at?: string | null
+          valid_until?: string | null
+          accepted_at?: string | null
+          total_ht?: number
+          discount_percent?: number
+          discount_amount?: number
+          total_after_discount?: number
+          tva_rate?: number
+          total_tva?: number
+          total_ttc?: number
+          client_name?: string | null
+          client_address?: string | null
+          client_siret?: string | null
+          client_vat_number?: string | null
+          notes?: string | null
+          conditions?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'quotes_company_id_fkey'
+            columns: ['company_id']
+            isOneToOne: false
+            referencedRelation: 'companies'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'quotes_contact_id_fkey'
+            columns: ['contact_id']
+            isOneToOne: false
+            referencedRelation: 'contacts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'quotes_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      quote_lines: {
+        Row: {
+          id: string
+          quote_id: string
+          sort_order: number
+          catalog_item_id: string | null
+          label: string
+          description: string | null
+          quantity: number
+          unit_price_ht: number
+          discount_percent: number
+          total_ht: number
+          unit_label: string
+          section: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          quote_id: string
+          sort_order?: number
+          catalog_item_id?: string | null
+          label: string
+          description?: string | null
+          quantity?: number
+          unit_price_ht?: number
+          discount_percent?: number
+          total_ht?: number
+          unit_label?: string
+          section?: string | null
+          created_at?: string
+        }
+        Update: {
+          quote_id?: string
+          sort_order?: number
+          catalog_item_id?: string | null
+          label?: string
+          description?: string | null
+          quantity?: number
+          unit_price_ht?: number
+          discount_percent?: number
+          total_ht?: number
+          unit_label?: string
+          section?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'quote_lines_quote_id_fkey'
+            columns: ['quote_id']
+            isOneToOne: false
+            referencedRelation: 'quotes'
             referencedColumns: ['id']
           },
         ]

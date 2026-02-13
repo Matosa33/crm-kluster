@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { getContact } from '@/lib/actions/contacts'
 import { getContactTimeline } from '@/lib/actions/timeline'
+import { getQuotesByContact } from '@/lib/actions/quotes'
 import { StatusSelect } from '@/components/contacts/status-select'
 import { ActivityForm } from '@/components/activities/activity-form'
 import { ContactTimeline } from '@/components/timeline/contact-timeline'
+import { QuoteMiniList } from '@/components/quotes/quote-mini-list'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -17,6 +19,7 @@ import {
   Euro,
   CalendarClock,
   Activity,
+  FileText,
 } from 'lucide-react'
 
 export default async function ContactDetailPage({
@@ -25,9 +28,10 @@ export default async function ContactDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [contact, timeline] = await Promise.all([
+  const [contact, timeline, quotes] = await Promise.all([
     getContact(id),
     getContactTimeline(id),
+    getQuotesByContact(id),
   ])
 
   return (
@@ -200,6 +204,21 @@ export default async function ContactDetailPage({
                   </p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Devis ({quotes.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <QuoteMiniList
+                quotes={quotes}
+                newQuoteHref={`/devis/nouveau?contact=${id}${contact.company ? `&company=${contact.company.id}` : ''}`}
+              />
             </CardContent>
           </Card>
 
