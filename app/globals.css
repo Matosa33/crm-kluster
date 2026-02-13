@@ -230,3 +230,232 @@
 .scrollbar-on-hover:hover::-webkit-scrollbar-thumb {
   background: oklch(1 0 0 / 12%);
 }
+
+/* ===== Copilot AI — Markdown prose ===== */
+.copilot-prose {
+  color: oklch(0.9 0.01 280);
+  line-height: 1.65;
+}
+
+/* Headings */
+.copilot-prose h1 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: oklch(0.95 0.005 280);
+  margin: 1rem 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid oklch(1 0 0 / 8%);
+}
+.copilot-prose h1:first-child {
+  margin-top: 0;
+}
+
+.copilot-prose h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: oklch(0.92 0.01 270);
+  margin: 1rem 0 0.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid oklch(1 0 0 / 6%);
+}
+.copilot-prose h2:first-child {
+  margin-top: 0;
+}
+
+.copilot-prose h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: oklch(0.85 0.06 270);
+  margin: 0.75rem 0 0.3rem;
+}
+.copilot-prose h3:first-child {
+  margin-top: 0;
+}
+
+/* Paragraphs */
+.copilot-prose p {
+  margin: 0.4rem 0;
+}
+
+/* Horizontal rules — airy separator */
+.copilot-prose hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    oklch(1 0 0 / 10%),
+    oklch(0.7 0.12 270 / 20%),
+    oklch(1 0 0 / 10%),
+    transparent
+  );
+  margin: 0.75rem 0;
+}
+
+/* Bold */
+.copilot-prose strong {
+  font-weight: 600;
+  color: oklch(0.97 0.005 280);
+}
+
+/* Italic */
+.copilot-prose em {
+  color: oklch(0.7 0.02 280);
+  font-style: italic;
+}
+
+/* Lists */
+.copilot-prose ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.35rem 0;
+}
+.copilot-prose ul li {
+  position: relative;
+  padding-left: 1.1rem;
+  margin: 0.2rem 0;
+}
+.copilot-prose ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: oklch(0.7 0.15 270);
+}
+
+.copilot-prose ol {
+  padding-left: 1.25rem;
+  margin: 0.35rem 0;
+}
+.copilot-prose ol li {
+  margin: 0.2rem 0;
+}
+.copilot-prose ol li::marker {
+  color: oklch(0.7 0.15 270);
+  font-weight: 600;
+}
+
+/* Tables — glass card wrapper with scroll */
+.copilot-table-wrap {
+  overflow-x: auto;
+  margin: 0.6rem 0;
+  border-radius: 8px;
+  border: 1px solid oklch(1 0 0 / 8%);
+  background: oklch(0.12 0.02 280 / 50%);
+  scrollbar-width: thin;
+  scrollbar-color: oklch(1 0 0 / 10%) transparent;
+}
+.copilot-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.copilot-prose thead th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: oklch(0.65 0.08 270);
+  padding: 0.5rem 0.75rem;
+  background: oklch(1 0 0 / 3%);
+  border-bottom: 1px solid oklch(1 0 0 / 10%);
+}
+.copilot-prose thead th:not(:last-child) {
+  border-right: 1px solid oklch(1 0 0 / 5%);
+}
+.copilot-prose tbody td {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid oklch(1 0 0 / 5%);
+  color: oklch(0.88 0.01 280);
+}
+.copilot-prose tbody td:not(:last-child) {
+  border-right: 1px solid oklch(1 0 0 / 4%);
+}
+.copilot-prose tbody tr:nth-child(even) {
+  background: oklch(1 0 0 / 2%);
+}
+.copilot-prose tbody tr:hover {
+  background: oklch(1 0 0 / 5%);
+}
+.copilot-prose tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Inline code */
+.copilot-prose code {
+  font-size: 0.8rem;
+  background: oklch(1 0 0 / 6%);
+  border: 1px solid oklch(1 0 0 / 8%);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  color: oklch(0.8 0.1 270);
+}
+
+/* Code blocks */
+.copilot-prose pre {
+  background: oklch(0.1 0.02 280);
+  border: 1px solid oklch(1 0 0 / 8%);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin: 0.5rem 0;
+  overflow-x: auto;
+}
+.copilot-prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.78rem;
+  color: oklch(0.85 0.01 280);
+}
+
+/* Blockquotes */
+.copilot-prose blockquote {
+  border-left: 3px solid oklch(0.7 0.15 270 / 40%);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: oklch(0.75 0.02 280);
+  font-style: italic;
+}
+
+/* Links */
+.copilot-prose a {
+  color: oklch(0.7 0.18 270);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.copilot-prose a:hover {
+  color: oklch(0.8 0.18 270);
+}
+
+/* Typing indicator — 3 dots wave (Messenger/iMessage style) */
+.typing-dots span {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: oklch(0.55 0.02 280);
+  animation: typing-wave 1.4s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing-wave {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+    background: oklch(0.7 0.15 270);
+  }
+}

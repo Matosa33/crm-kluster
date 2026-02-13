@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
-import { Bot, Loader2, RotateCcw } from 'lucide-react'
+import { Bot, RotateCcw } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -144,11 +144,15 @@ export function CopilotPanel() {
 
               {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
                 <div className="flex gap-2">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-500/15 border border-indigo-500/20">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-500/15 border border-indigo-500/20 mt-1">
                     <Bot className="h-3.5 w-3.5 text-indigo-400" />
                   </div>
-                  <div className="rounded-2xl rounded-bl-md bg-white/[0.04] border border-white/[0.06] px-4 py-3">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <div className="rounded-2xl rounded-bl-md bg-white/[0.04] border border-white/[0.06] px-5 py-3.5">
+                    <div className="typing-dots flex items-center gap-1">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
                   </div>
                 </div>
               )}

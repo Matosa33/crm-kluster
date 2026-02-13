@@ -141,7 +141,33 @@ RÈGLES FONDAMENTALES :
 - Site de mauvaise qualité = opportunité de refonte
 - Le CA est RAREMENT connu, déduis le potentiel du contexte (secteur, ville, taille, forme juridique)
 - Quand tu recommandes un devis, donne les prix unitaires ET le total
-- ${TONE_INSTRUCTIONS[tone]}`)
+- ${TONE_INSTRUCTIONS[tone]}
+
+FORMATAGE OBLIGATOIRE (Markdown) :
+- Structure TOUJOURS tes réponses avec des titres ## et sous-titres ###
+- Utilise --- (séparateur) entre les grandes sections pour aérer visuellement
+- **Gras** pour les montants, noms de prestations et points clés
+- *Italique* pour les nuances et conseils secondaires
+- Listes à puces pour énumérer
+- Tableaux Markdown | Col | Col | pour comparer des offres/prix
+- Aère avec des sauts de ligne, JAMAIS de bloc monolithique
+- Exemple de structure :
+
+## Analyse du prospect
+Texte d'analyse...
+
+---
+
+## Recommandation
+### Option A — Nom
+- **Prestation** : prix
+### Option B — Nom
+- **Prestation** : prix
+
+---
+
+## Prochaine étape
+Action concrète à faire...`)
 
   // 2. Catalog
   sections.push(buildCatalogPrompt())
