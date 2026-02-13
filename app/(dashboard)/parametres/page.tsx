@@ -1,12 +1,15 @@
 import { getUser, getAllUsers } from '@/lib/actions/auth'
+import { getAiSettings } from '@/lib/actions/ai-settings'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { AiSettingsCard } from '@/components/copilot/ai-settings-card'
 
 export default async function SettingsPage() {
-  const [currentUser, allUsers] = await Promise.all([
+  const [currentUser, allUsers, aiSettings] = await Promise.all([
     getUser(),
     getAllUsers(),
+    getAiSettings(),
   ])
 
   return (
@@ -98,6 +101,8 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        <AiSettingsCard initialSettings={aiSettings} />
       </div>
     </div>
   )

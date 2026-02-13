@@ -4,6 +4,8 @@ import { getContactsByCompany } from '@/lib/actions/contacts'
 import { getQuotesByCompany } from '@/lib/actions/quotes'
 import { QuoteMiniList } from '@/components/quotes/quote-mini-list'
 import { CompanySiretLookup } from '@/components/companies/company-siret-lookup'
+import { CopilotProvider } from '@/components/copilot/copilot-provider'
+import { CopilotTrigger } from '@/components/copilot/copilot-trigger'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -33,6 +35,7 @@ import {
 import { STATUS_CONFIG } from '@/lib/constants/status-config'
 import { getGmbScoreConfig } from '@/lib/utils/gmb-score'
 import type { ContactStatus } from '@/lib/types'
+import type { CopilotContext } from '@/lib/ai/types'
 
 const SOCIAL_LINKS = [
   { key: 'social_facebook', label: 'Facebook', prefix: 'https://facebook.com/' },
@@ -83,7 +86,46 @@ export default async function CompanyDetailPage({
     return `${value.toLocaleString('fr-FR')} €`
   }
 
+  const copilotCtx: CopilotContext = {
+    type: 'company',
+    company: {
+      id: company.id,
+      name: company.name,
+      business_type: company.business_type,
+      city: company.city,
+      phone: company.phone,
+      email: company.email,
+      website: company.website,
+      website_status: company.website_status,
+      website_quality: company.website_quality,
+      rating: company.rating,
+      review_count: company.review_count,
+      gmb_score: company.gmb_score,
+      siret: company.siret,
+      legal_name: company.legal_name,
+      legal_form: company.legal_form,
+      naf_label: company.naf_label,
+      chiffre_affaires: company.chiffre_affaires,
+      resultat_net: company.resultat_net,
+      effectif: company.effectif,
+      categorie_entreprise: company.categorie_entreprise,
+      date_creation_entreprise: company.date_creation_entreprise,
+      description: company.description,
+      social_facebook: company.social_facebook,
+      social_instagram: company.social_instagram,
+    },
+    quotes: quotes.map((q) => ({
+      id: q.id,
+      reference: q.reference,
+      status: q.status,
+      total_ht: q.total_ht,
+      total_ttc: q.total_ttc,
+      issued_at: q.issued_at,
+    })),
+  }
+
   return (
+    <CopilotProvider context={copilotCtx}>
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
@@ -109,6 +151,7 @@ export default async function CompanyDetailPage({
             </span>
           </div>
         </div>
+        <CopilotTrigger />
         <Button asChild>
           <Link href={`/entreprises/${id}/modifier`}>
             <Pencil className="mr-2 h-4 w-4" />
@@ -573,5 +616,6 @@ export default async function CompanyDetailPage({
         </Card>
       </div>
     </div>
+    </CopilotProvider>
   )
 }

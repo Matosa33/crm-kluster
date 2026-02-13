@@ -526,6 +526,44 @@ export type Database = {
           },
         ]
       }
+      ai_settings: {
+        Row: {
+          id: string
+          user_id: string
+          openrouter_api_key: string | null
+          model_id: string
+          custom_instructions: string | null
+          tone: 'professionnel' | 'decontracte' | 'technique'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          openrouter_api_key?: string | null
+          model_id?: string
+          custom_instructions?: string | null
+          tone?: 'professionnel' | 'decontracte' | 'technique'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          openrouter_api_key?: string | null
+          model_id?: string
+          custom_instructions?: string | null
+          tone?: 'professionnel' | 'decontracte' | 'technique'
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'ai_settings_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: true
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       quote_lines: {
         Row: {
           id: string

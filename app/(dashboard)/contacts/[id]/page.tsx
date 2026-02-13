@@ -6,6 +6,8 @@ import { StatusSelect } from '@/components/contacts/status-select'
 import { ActivityForm } from '@/components/activities/activity-form'
 import { ContactTimeline } from '@/components/timeline/contact-timeline'
 import { QuoteMiniList } from '@/components/quotes/quote-mini-list'
+import { CopilotProvider } from '@/components/copilot/copilot-provider'
+import { CopilotTrigger } from '@/components/copilot/copilot-trigger'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,6 +23,7 @@ import {
   Activity,
   FileText,
 } from 'lucide-react'
+import type { CopilotContext } from '@/lib/ai/types'
 
 export default async function ContactDetailPage({
   params,
@@ -34,7 +37,63 @@ export default async function ContactDetailPage({
     getQuotesByContact(id),
   ])
 
+  const copilotCtx: CopilotContext = {
+    type: 'contact',
+    contact: {
+      id: contact.id,
+      first_name: contact.first_name,
+      last_name: contact.last_name,
+      phone: contact.phone,
+      email: contact.email,
+      position: contact.position,
+      status: contact.status,
+      priority: contact.priority,
+      source: contact.source,
+      notes: contact.notes,
+      deal_amount: contact.deal_amount,
+      next_followup_at: contact.next_followup_at,
+    },
+    company: contact.company
+      ? {
+          id: contact.company.id,
+          name: contact.company.name,
+          business_type: contact.company.business_type,
+          city: contact.company.city,
+          phone: contact.company.phone,
+          email: contact.company.email,
+          website: contact.company.website,
+          website_status: contact.company.website_status,
+          website_quality: contact.company.website_quality,
+          rating: contact.company.rating,
+          review_count: contact.company.review_count,
+          gmb_score: contact.company.gmb_score,
+          siret: contact.company.siret,
+          legal_name: contact.company.legal_name,
+          legal_form: contact.company.legal_form,
+          naf_label: contact.company.naf_label,
+          chiffre_affaires: contact.company.chiffre_affaires,
+          resultat_net: contact.company.resultat_net,
+          effectif: contact.company.effectif,
+          categorie_entreprise: contact.company.categorie_entreprise,
+          date_creation_entreprise: contact.company.date_creation_entreprise,
+          description: contact.company.description,
+          social_facebook: contact.company.social_facebook,
+          social_instagram: contact.company.social_instagram,
+        }
+      : null,
+    timeline,
+    quotes: quotes.map((q) => ({
+      id: q.id,
+      reference: q.reference,
+      status: q.status,
+      total_ht: q.total_ht,
+      total_ttc: q.total_ttc,
+      issued_at: q.issued_at,
+    })),
+  }
+
   return (
+    <CopilotProvider context={copilotCtx}>
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
@@ -50,6 +109,7 @@ export default async function ContactDetailPage({
             <p className="text-muted-foreground mt-1">{contact.position}</p>
           )}
         </div>
+        <CopilotTrigger />
         <Button asChild>
           <Link href={`/contacts/${id}/modifier`}>
             <Pencil className="mr-2 h-4 w-4" />
@@ -237,5 +297,6 @@ export default async function ContactDetailPage({
         </div>
       </div>
     </div>
+    </CopilotProvider>
   )
 }

@@ -18,6 +18,9 @@ export type Quote = Database['public']['Tables']['quotes']['Row']
 export type QuoteLine = Database['public']['Tables']['quote_lines']['Row']
 export type QuoteStatus = Quote['status']
 
+export type AiSettings = Database['public']['Tables']['ai_settings']['Row']
+export type AiTone = AiSettings['tone']
+
 export type CompanyInsert = Database['public']['Tables']['companies']['Insert']
 export type CompanyUpdate = Database['public']['Tables']['companies']['Update']
 export type ContactInsert = Database['public']['Tables']['contacts']['Insert']

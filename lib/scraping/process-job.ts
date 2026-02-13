@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { computeGmbScore } from '@/lib/utils/gmb-score'
 
 function getAdminSupabase() {
   return createClient(
@@ -210,7 +211,7 @@ export async function processJob(jobId: string, pages: number = 1): Promise<Proc
         website: place.website || null,
         google_maps_url: place.link || place.place_url || null,
         rating: place.rating != null ? Number(place.rating) : null,
-        review_count: place.ratingCount || place.reviews || place.reviewsCount || place.user_ratings_total || 0,
+        review_count: Number(place.ratingCount ?? place.reviews ?? place.reviewsCount ?? place.user_ratings_total ?? 0),
         source_api: scrapeResult.api,
         scraped_at: new Date().toISOString(),
         created_by: job.created_by,
@@ -223,6 +224,9 @@ export async function processJob(jobId: string, pages: number = 1): Promise<Proc
       if (service_options) companyData.service_options = service_options
       if (latitude != null) companyData.latitude = latitude
       if (longitude != null) companyData.longitude = longitude
+
+      // Compute GMB score in TypeScript (works even without the SQL RPC function)
+      companyData.gmb_score = computeGmbScore(companyData as Record<string, unknown>)
 
       const { error: insertError } = await supabase
         .from('companies')
