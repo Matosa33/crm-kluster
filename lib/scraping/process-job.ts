@@ -117,14 +117,25 @@ export async function processJob(jobId: string, pages: number = 1): Promise<Proc
     .eq('id', jobId)
 
   try {
-    // Try Serper first, fallback to SerpAPI
+    // Serper Maps doesn't support pagination (page param ignored, always ~20 results).
+    // SerpAPI supports pagination via `start` offset.
+    // When multiple pages requested: SerpAPI first, Serper fallback.
+    // When single page: Serper first (faster/cheaper), SerpAPI fallback.
     let scrapeResult: {
       results: Record<string, unknown>[]
       api: string
-    } | null = await scrapeWithSerper(job.query, job.city, pages)
+    } | null = null
 
-    if (!scrapeResult || scrapeResult.results.length === 0) {
+    if (pages > 1) {
       scrapeResult = await scrapeWithSerpAPI(job.query, job.city, pages)
+      if (!scrapeResult || scrapeResult.results.length === 0) {
+        scrapeResult = await scrapeWithSerper(job.query, job.city, 1)
+      }
+    } else {
+      scrapeResult = await scrapeWithSerper(job.query, job.city, 1)
+      if (!scrapeResult || scrapeResult.results.length === 0) {
+        scrapeResult = await scrapeWithSerpAPI(job.query, job.city, 1)
+      }
     }
 
     if (!scrapeResult || scrapeResult.results.length === 0) {
@@ -153,29 +164,82 @@ export async function processJob(jobId: string, pages: number = 1): Promise<Proc
     // Insert companies (upsert to avoid duplicates)
     let count = 0
     for (const place of uniqueResults) {
-      const companyData = {
+      // Extract categories from both API formats
+      const categories: string[] = []
+      if (place.types && Array.isArray(place.types)) {
+        categories.push(...(place.types as string[]))
+      } else if (place.type) {
+        categories.push(String(place.type))
+      }
+      if (place.category && !categories.includes(String(place.category))) {
+        categories.push(String(place.category))
+      }
+
+      // Extract GPS coordinates
+      const gps = place.gps_coordinates as Record<string, number> | undefined
+      const latitude = gps?.latitude ?? (place.latitude as number) ?? null
+      const longitude = gps?.longitude ?? (place.longitude as number) ?? null
+
+      // Extract opening hours (SerpAPI: object, Serper: may be string)
+      let opening_hours: Record<string, string> | null = null
+      if (place.operating_hours && typeof place.operating_hours === 'object') {
+        opening_hours = place.operating_hours as Record<string, string>
+      } else if (place.hours && typeof place.hours === 'string') {
+        opening_hours = { info: place.hours as string }
+      }
+
+      // Extract service options (SerpAPI only)
+      const service_options =
+        place.service_options && typeof place.service_options === 'object'
+          ? (place.service_options as Record<string, boolean>)
+          : null
+
+      // Extract postal code from address (French: 5 digits before city name)
+      const rawAddress = String(place.address || place.street || '')
+      const postalMatch = rawAddress.match(/\b(\d{5})\b/)
+      const postal_code = postalMatch ? postalMatch[1] : null
+
+      // Core fields (always written)
+      const companyData: Record<string, unknown> = {
         name: place.title || place.name || 'Sans nom',
         business_type: job.query,
         city: job.city,
-        address: place.address || place.street || null,
+        address: rawAddress || null,
+        postal_code,
         phone: place.phoneNumber || place.phone || null,
         website: place.website || null,
         google_maps_url: place.link || place.place_url || null,
-        rating: place.rating || null,
-        review_count: place.reviews || place.reviewsCount || 0,
+        rating: place.rating != null ? Number(place.rating) : null,
+        review_count: place.ratingCount || place.reviews || place.reviewsCount || place.user_ratings_total || 0,
         source_api: scrapeResult.api,
         scraped_at: new Date().toISOString(),
         created_by: job.created_by,
       }
 
+      // Enrichment fields: only include when API returns data (avoid overwriting manual input with null)
+      if (place.description) companyData.description = String(place.description)
+      if (categories.length > 0) companyData.categories = categories
+      if (opening_hours) companyData.opening_hours = opening_hours
+      if (service_options) companyData.service_options = service_options
+      if (latitude != null) companyData.latitude = latitude
+      if (longitude != null) companyData.longitude = longitude
+
       const { error: insertError } = await supabase
         .from('companies')
         .upsert(companyData as never, {
           onConflict: 'name,city',
-          ignoreDuplicates: true,
+          ignoreDuplicates: false,
         })
 
       if (!insertError) count++
+    }
+
+    // Batch recalculate GMB scores for all companies in this city
+    // Uses SQL so the score accounts for ALL data (scraped + manually entered)
+    try {
+      await supabase.rpc('recalculate_gmb_scores' as never, { target_city: job.city } as never)
+    } catch {
+      // Ignore if RPC doesn't exist yet
     }
 
     // Update job as completed

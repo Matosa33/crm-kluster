@@ -285,7 +285,7 @@ export async function getContactsByCompany(companyId: string) {
 
   const { data, error } = await supabase
     .from('contacts')
-    .select('id, first_name, last_name, status, deal_amount, job_title')
+    .select('id, first_name, last_name, status, deal_amount, position')
     .eq('company_id', companyId)
     .order('created_at', { ascending: false })
 
@@ -296,6 +296,6 @@ export async function getContactsByCompany(companyId: string) {
     last_name: string | null
     status: string
     deal_amount: number | null
-    job_title: string | null
+    position: string | null
   }[]) || []
 }

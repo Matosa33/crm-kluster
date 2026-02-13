@@ -68,6 +68,12 @@ export function CompanyForm({ company }: CompanyFormProps) {
             ? false
             : null,
       website_notes: (formData.get('website_notes') as string) || null,
+      description: (formData.get('description') as string) || null,
+      social_facebook: (formData.get('social_facebook') as string) || null,
+      social_instagram: (formData.get('social_instagram') as string) || null,
+      social_twitter: (formData.get('social_twitter') as string) || null,
+      social_linkedin: (formData.get('social_linkedin') as string) || null,
+      social_youtube: (formData.get('social_youtube') as string) || null,
     }
 
     try {
@@ -248,6 +254,76 @@ export function CompanyForm({ company }: CompanyFormProps) {
               rows={3}
               placeholder="Ex: Site pas responsive, design des années 2010, pas de page Google My Business, pas de SEO..."
               defaultValue={company?.website_notes || ''}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Description */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Description</h3>
+        <div className="space-y-2">
+          <Textarea
+            id="description"
+            name="description"
+            rows={3}
+            placeholder="Description de l'entreprise, activités principales..."
+            defaultValue={company?.description || ''}
+          />
+        </div>
+      </div>
+
+      {/* Réseaux sociaux */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Réseaux sociaux</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="social_facebook">Facebook</Label>
+            <Input
+              id="social_facebook"
+              name="social_facebook"
+              placeholder="https://facebook.com/..."
+              defaultValue={company?.social_facebook || ''}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="social_instagram">Instagram</Label>
+            <Input
+              id="social_instagram"
+              name="social_instagram"
+              placeholder="https://instagram.com/..."
+              defaultValue={company?.social_instagram || ''}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="social_twitter">X / Twitter</Label>
+            <Input
+              id="social_twitter"
+              name="social_twitter"
+              placeholder="https://twitter.com/..."
+              defaultValue={company?.social_twitter || ''}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="social_linkedin">LinkedIn</Label>
+            <Input
+              id="social_linkedin"
+              name="social_linkedin"
+              placeholder="https://linkedin.com/..."
+              defaultValue={company?.social_linkedin || ''}
+            />
+          </div>
+
+          <div className="md:col-span-2 space-y-2">
+            <Label htmlFor="social_youtube">YouTube</Label>
+            <Input
+              id="social_youtube"
+              name="social_youtube"
+              placeholder="https://youtube.com/..."
+              defaultValue={company?.social_youtube || ''}
             />
           </div>
         </div>

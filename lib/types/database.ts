@@ -68,6 +68,23 @@ export type Database = {
           capital: string | null
           rcs_city: string | null
           headquarters_address: string | null
+          description: string | null
+          categories: string[] | null
+          opening_hours: Record<string, string> | null
+          service_options: Record<string, boolean> | null
+          latitude: number | null
+          longitude: number | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_twitter: string | null
+          social_linkedin: string | null
+          social_youtube: string | null
+          gmb_score: number | null
+          chiffre_affaires: number | null
+          resultat_net: number | null
+          effectif: string | null
+          date_creation_entreprise: string | null
+          categorie_entreprise: string | null
         }
         Insert: {
           id?: string
@@ -101,6 +118,23 @@ export type Database = {
           capital?: string | null
           rcs_city?: string | null
           headquarters_address?: string | null
+          description?: string | null
+          categories?: string[] | null
+          opening_hours?: Record<string, string> | null
+          service_options?: Record<string, boolean> | null
+          latitude?: number | null
+          longitude?: number | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_twitter?: string | null
+          social_linkedin?: string | null
+          social_youtube?: string | null
+          gmb_score?: number | null
+          chiffre_affaires?: number | null
+          resultat_net?: number | null
+          effectif?: string | null
+          date_creation_entreprise?: string | null
+          categorie_entreprise?: string | null
         }
         Update: {
           name?: string
@@ -131,6 +165,23 @@ export type Database = {
           capital?: string | null
           rcs_city?: string | null
           headquarters_address?: string | null
+          description?: string | null
+          categories?: string[] | null
+          opening_hours?: Record<string, string> | null
+          service_options?: Record<string, boolean> | null
+          latitude?: number | null
+          longitude?: number | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_twitter?: string | null
+          social_linkedin?: string | null
+          social_youtube?: string | null
+          gmb_score?: number | null
+          chiffre_affaires?: number | null
+          resultat_net?: number | null
+          effectif?: string | null
+          date_creation_entreprise?: string | null
+          categorie_entreprise?: string | null
         }
         Relationships: [
           {

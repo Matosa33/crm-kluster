@@ -22,13 +22,14 @@ interface ContactFormProps {
   contact?: Contact
   companies: Pick<Company, 'id' | 'name'>[]
   users: Pick<Profile, 'id' | 'full_name'>[]
+  defaultCompanyId?: string
 }
 
-export function ContactForm({ contact, companies, users }: ContactFormProps) {
+export function ContactForm({ contact, companies, users, defaultCompanyId }: ContactFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [companyId, setCompanyId] = useState(contact?.company_id || '')
+  const [companyId, setCompanyId] = useState(contact?.company_id || defaultCompanyId || '')
   const [assignedTo, setAssignedTo] = useState(contact?.assigned_to || '')
   const [status, setStatus] = useState(contact?.status || 'a_contacter')
   const [priority, setPriority] = useState(contact?.priority || 'moyenne')

@@ -3,6 +3,7 @@ import { getCompany } from '@/lib/actions/companies'
 import { getContactsByCompany } from '@/lib/actions/contacts'
 import { getQuotesByCompany } from '@/lib/actions/quotes'
 import { QuoteMiniList } from '@/components/quotes/quote-mini-list'
+import { CompanySiretLookup } from '@/components/companies/company-siret-lookup'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -19,13 +20,27 @@ import {
   Smartphone,
   Users,
   FileText,
+  ShieldCheck,
+  Share2,
+  Tag,
+  TrendingUp,
+  CalendarDays,
 } from 'lucide-react'
 import {
   WEBSITE_STATUS_CONFIG,
   WEBSITE_QUALITY_CONFIG,
 } from '@/lib/constants/website-config'
 import { STATUS_CONFIG } from '@/lib/constants/status-config'
+import { getGmbScoreConfig } from '@/lib/utils/gmb-score'
 import type { ContactStatus } from '@/lib/types'
+
+const SOCIAL_LINKS = [
+  { key: 'social_facebook', label: 'Facebook', prefix: 'https://facebook.com/' },
+  { key: 'social_instagram', label: 'Instagram', prefix: 'https://instagram.com/' },
+  { key: 'social_twitter', label: 'X / Twitter', prefix: 'https://twitter.com/' },
+  { key: 'social_linkedin', label: 'LinkedIn', prefix: 'https://linkedin.com/' },
+  { key: 'social_youtube', label: 'YouTube', prefix: 'https://youtube.com/' },
+] as const
 
 export default async function CompanyDetailPage({
   params,
@@ -39,6 +54,35 @@ export default async function CompanyDetailPage({
     getQuotesByCompany(id),
   ])
 
+  const gmbScore = company.gmb_score ?? 0
+  const gmbConfig = getGmbScoreConfig(gmbScore)
+
+  const hasSocial = !!(
+    company.social_facebook ||
+    company.social_instagram ||
+    company.social_twitter ||
+    company.social_linkedin ||
+    company.social_youtube
+  )
+
+  const hasFinances = !!(
+    company.chiffre_affaires != null ||
+    company.resultat_net != null ||
+    company.effectif ||
+    company.categorie_entreprise ||
+    company.date_creation_entreprise
+  )
+
+  function formatCurrency(value: number): string {
+    if (value >= 1_000_000) {
+      return `${(value / 1_000_000).toFixed(1).replace('.0', '')} M€`
+    }
+    if (value >= 1_000) {
+      return `${(value / 1_000).toFixed(0)} k€`
+    }
+    return `${value.toLocaleString('fr-FR')} €`
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -49,7 +93,7 @@ export default async function CompanyDetailPage({
         </Button>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">{company.name}</h1>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
             <Badge variant="secondary">{company.business_type}</Badge>
             <Badge variant="outline">{company.source_api || 'manual'}</Badge>
             {company.rating && (
@@ -58,6 +102,11 @@ export default async function CompanyDetailPage({
                 {company.rating}
               </Badge>
             )}
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${gmbConfig.color} ${gmbConfig.bgColor}`}
+            >
+              GMB {gmbScore}% — {gmbConfig.label}
+            </span>
           </div>
         </div>
         <Button asChild>
@@ -68,7 +117,29 @@ export default async function CompanyDetailPage({
         </Button>
       </div>
 
+      {/* Description */}
+      {company.description && (
+        <Card>
+          <CardContent className="pt-5">
+            <p className="text-sm text-muted-foreground">{company.description}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Categories */}
+      {company.categories && company.categories.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <Tag className="h-4 w-4 text-muted-foreground" />
+          {company.categories.map((cat) => (
+            <Badge key={cat} variant="outline" className="text-xs">
+              {cat}
+            </Badge>
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Coordonnees */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -140,9 +211,40 @@ export default async function CompanyDetailPage({
                 </a>
               </div>
             )}
+
+            {/* Reseaux sociaux */}
+            {hasSocial && (
+              <div className="pt-3 border-t border-white/[0.06]">
+                <div className="flex items-center gap-2 mb-2">
+                  <Share2 className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground font-medium">
+                    Réseaux sociaux
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {SOCIAL_LINKS.map(({ key, label, prefix }) => {
+                    const value = company[key]
+                    if (!value) return null
+                    const url = value.startsWith('http') ? value : prefix + value
+                    return (
+                      <a
+                        key={key}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                      >
+                        {label}
+                      </a>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
+        {/* Analyse site web */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -170,9 +272,12 @@ export default async function CompanyDetailPage({
               <>
                 {company.website_quality && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Qualité du site</span>
+                    <span className="text-sm text-muted-foreground">
+                      Qualité du site
+                    </span>
                     {(() => {
-                      const config = WEBSITE_QUALITY_CONFIG[company.website_quality]
+                      const config =
+                        WEBSITE_QUALITY_CONFIG[company.website_quality]
                       return (
                         <span
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.color} ${config.bgColor}`}
@@ -209,41 +314,151 @@ export default async function CompanyDetailPage({
           </CardContent>
         </Card>
 
+        {/* SIRET / Informations legales */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5" />
+              Informations légales
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            {company.siret ? (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">SIRET</span>
+                  <span className="font-mono">{company.siret}</span>
+                </div>
+                {company.siren && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">SIREN</span>
+                    <span className="font-mono">{company.siren}</span>
+                  </div>
+                )}
+                {company.legal_name && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Raison sociale</span>
+                    <span>{company.legal_name}</span>
+                  </div>
+                )}
+                {company.legal_form && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Forme juridique
+                    </span>
+                    <span>{company.legal_form}</span>
+                  </div>
+                )}
+                {company.naf_label && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Activité</span>
+                    <span>{company.naf_label}</span>
+                  </div>
+                )}
+                {company.vat_number && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">TVA intracom.</span>
+                    <span className="font-mono text-xs">
+                      {company.vat_number}
+                    </span>
+                  </div>
+                )}
+                {company.headquarters_address && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Adresse siège</span>
+                    <span className="text-right max-w-[60%]">
+                      {company.headquarters_address}
+                    </span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-muted-foreground text-sm">
+                  Aucun SIRET associé. Recherchez l&apos;entreprise pour associer
+                  ses informations légales.
+                </p>
+                <CompanySiretLookup
+                  companyId={company.id}
+                  companyName={company.name}
+                  companyCity={company.city}
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Données financières */}
+        {hasFinances && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Données financières
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              {company.chiffre_affaires != null && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Chiffre d&apos;affaires</span>
+                  <span className="font-semibold text-emerald-400">
+                    {formatCurrency(company.chiffre_affaires)}
+                  </span>
+                </div>
+              )}
+              {company.resultat_net != null && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Résultat net</span>
+                  <span
+                    className={`font-semibold ${company.resultat_net >= 0 ? 'text-emerald-400' : 'text-red-400'}`}
+                  >
+                    {formatCurrency(company.resultat_net)}
+                  </span>
+                </div>
+              )}
+              {company.effectif && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Effectif</span>
+                  <span>{company.effectif}</span>
+                </div>
+              )}
+              {company.categorie_entreprise && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Catégorie</span>
+                  <span>{company.categorie_entreprise}</span>
+                </div>
+              )}
+              {company.date_creation_entreprise && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1.5">
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    Création
+                  </span>
+                  <span>
+                    {new Date(company.date_creation_entreprise).toLocaleDateString('fr-FR')}
+                  </span>
+                </div>
+              )}
+              {/* Indicateur lead chaud: gros CA + pas de site */}
+              {company.chiffre_affaires != null &&
+                company.chiffre_affaires >= 100_000 &&
+                !company.website && (
+                  <div className="mt-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <p className="text-xs text-amber-400 font-medium">
+                      CA &ge; 100k€ sans site web — lead potentiel prioritaire
+                    </p>
+                  </div>
+                )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Infos complementaires */}
         <Card>
           <CardHeader>
             <CardTitle>Informations</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            {company.siret && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">SIRET</span>
-                <span className="font-mono">{company.siret}</span>
-              </div>
-            )}
-            {company.legal_name && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Raison sociale</span>
-                <span>{company.legal_name}</span>
-              </div>
-            )}
-            {company.legal_form && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Forme juridique</span>
-                <span>{company.legal_form}</span>
-              </div>
-            )}
-            {company.naf_label && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Activité</span>
-                <span>{company.naf_label}</span>
-              </div>
-            )}
-            {company.vat_number && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">TVA intracom.</span>
-                <span className="font-mono text-xs">{company.vat_number}</span>
-              </div>
-            )}
             {company.rating !== null && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Note Google</span>
@@ -253,6 +468,14 @@ export default async function CompanyDetailPage({
                 </span>
               </div>
             )}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Score GMB</span>
+              <span
+                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${gmbConfig.color} ${gmbConfig.bgColor}`}
+              >
+                {gmbScore}% — {gmbConfig.label}
+              </span>
+            </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Source</span>
               <span>{company.source_api || 'Ajout manuel'}</span>
@@ -274,6 +497,7 @@ export default async function CompanyDetailPage({
           </CardContent>
         </Card>
 
+        {/* Contacts lies */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
@@ -281,7 +505,7 @@ export default async function CompanyDetailPage({
               Contacts liés ({contacts.length})
             </CardTitle>
             <Button size="sm" variant="outline" asChild>
-              <Link href={`/contacts/nouveau`}>+ Ajouter</Link>
+              <Link href={`/contacts/nouveau?company=${id}`}>+ Ajouter</Link>
             </Button>
           </CardHeader>
           <CardContent>
@@ -292,7 +516,8 @@ export default async function CompanyDetailPage({
             ) : (
               <div className="space-y-2">
                 {contacts.map((contact) => {
-                  const statusConfig = STATUS_CONFIG[contact.status as ContactStatus]
+                  const statusConfig =
+                    STATUS_CONFIG[contact.status as ContactStatus]
                   return (
                     <Link
                       key={contact.id}
@@ -303,9 +528,9 @@ export default async function CompanyDetailPage({
                         <p className="text-sm font-medium truncate">
                           {contact.first_name} {contact.last_name}
                         </p>
-                        {contact.job_title && (
+                        {contact.position && (
                           <p className="text-xs text-muted-foreground truncate">
-                            {contact.job_title}
+                            {contact.position}
                           </p>
                         )}
                       </div>
@@ -316,7 +541,9 @@ export default async function CompanyDetailPage({
                           </span>
                         )}
                         {statusConfig && (
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${statusConfig.bgColor} ${statusConfig.color}`}>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${statusConfig.bgColor} ${statusConfig.color}`}
+                          >
                             {statusConfig.label}
                           </span>
                         )}

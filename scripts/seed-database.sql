@@ -305,6 +305,19 @@ DO $$ BEGIN
   ALTER TABLE companies ADD COLUMN IF NOT EXISTS capital TEXT;
   ALTER TABLE companies ADD COLUMN IF NOT EXISTS rcs_city TEXT;
   ALTER TABLE companies ADD COLUMN IF NOT EXISTS headquarters_address TEXT;
+  -- Migration 006: Enrichissement scraping + RS + GMB
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS description TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS categories TEXT[];
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS opening_hours JSONB;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS service_options JSONB;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS social_facebook TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS social_instagram TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS social_twitter TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS social_linkedin TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS social_youtube TEXT;
+  ALTER TABLE companies ADD COLUMN IF NOT EXISTS gmb_score INTEGER DEFAULT 0;
 END $$;
 
 -- ============================================

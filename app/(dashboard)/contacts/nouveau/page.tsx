@@ -6,7 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 
-export default async function NewContactPage() {
+export default async function NewContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ company?: string }>
+}) {
+  const { company: defaultCompanyId } = await searchParams
   const [companies, users] = await Promise.all([
     getCompanies(),
     getAllUsers(),
@@ -33,7 +38,11 @@ export default async function NewContactPage() {
           <CardTitle>Informations du contact</CardTitle>
         </CardHeader>
         <CardContent>
-          <ContactForm companies={companies} users={users} />
+          <ContactForm
+            companies={companies}
+            users={users}
+            defaultCompanyId={defaultCompanyId}
+          />
         </CardContent>
       </Card>
     </div>
