@@ -51,6 +51,10 @@ export type Database = {
           review_count: number
           source_api: 'serper' | 'serpapi' | 'manual' | null
           scraped_at: string | null
+          website_status: Database['public']['Enums']['website_status']
+          website_quality: Database['public']['Enums']['website_quality'] | null
+          is_mobile_friendly: boolean | null
+          website_notes: string | null
           created_at: string
           updated_at: string
           created_by: string | null
@@ -70,6 +74,10 @@ export type Database = {
           review_count?: number
           source_api?: 'serper' | 'serpapi' | 'manual' | null
           scraped_at?: string | null
+          website_status?: Database['public']['Enums']['website_status']
+          website_quality?: Database['public']['Enums']['website_quality'] | null
+          is_mobile_friendly?: boolean | null
+          website_notes?: string | null
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -88,6 +96,10 @@ export type Database = {
           review_count?: number
           source_api?: 'serper' | 'serpapi' | 'manual' | null
           scraped_at?: string | null
+          website_status?: Database['public']['Enums']['website_status']
+          website_quality?: Database['public']['Enums']['website_quality'] | null
+          is_mobile_friendly?: boolean | null
+          website_notes?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -114,6 +126,9 @@ export type Database = {
           priority: Database['public']['Enums']['contact_priority']
           source: string | null
           notes: string | null
+          deal_amount: number | null
+          next_followup_at: string | null
+          lost_reason: string | null
           created_at: string
           updated_at: string
           created_by: string | null
@@ -131,6 +146,9 @@ export type Database = {
           priority?: Database['public']['Enums']['contact_priority']
           source?: string | null
           notes?: string | null
+          deal_amount?: number | null
+          next_followup_at?: string | null
+          lost_reason?: string | null
           created_at?: string
           updated_at?: string
           created_by?: string | null
@@ -147,6 +165,9 @@ export type Database = {
           priority?: Database['public']['Enums']['contact_priority']
           source?: string | null
           notes?: string | null
+          deal_amount?: number | null
+          next_followup_at?: string | null
+          lost_reason?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -183,6 +204,10 @@ export type Database = {
           description: string | null
           scheduled_at: string | null
           completed_at: string | null
+          duration_minutes: number | null
+          location: string | null
+          attendees: string[]
+          meeting_notes: string | null
           created_at: string
         }
         Insert: {
@@ -194,6 +219,10 @@ export type Database = {
           description?: string | null
           scheduled_at?: string | null
           completed_at?: string | null
+          duration_minutes?: number | null
+          location?: string | null
+          attendees?: string[]
+          meeting_notes?: string | null
           created_at?: string
         }
         Update: {
@@ -204,6 +233,10 @@ export type Database = {
           description?: string | null
           scheduled_at?: string | null
           completed_at?: string | null
+          duration_minutes?: number | null
+          location?: string | null
+          attendees?: string[]
+          meeting_notes?: string | null
         }
         Relationships: [
           {
@@ -324,6 +357,8 @@ export type Database = {
       contact_priority: 'basse' | 'moyenne' | 'haute'
       activity_type: 'appel' | 'email' | 'rdv' | 'note'
       scrape_status: 'pending' | 'running' | 'completed' | 'failed'
+      website_status: 'pas_de_site' | 'site_existant' | 'inconnu'
+      website_quality: 'bonne' | 'correcte' | 'mauvaise' | 'obsolete'
     }
   }
 }

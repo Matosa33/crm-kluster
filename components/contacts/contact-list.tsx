@@ -44,27 +44,29 @@ export function ContactList({ contacts }: ContactListProps) {
   if (contacts.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Aucun contact trouve</p>
+        <p className="text-muted-foreground">Aucun contact trouvé</p>
       </div>
     )
   }
 
   return (
-    <div className="border rounded-lg overflow-x-auto">
+    <div className="glass-card rounded-xl overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="border-white/[0.06] hover:bg-transparent">
             <TableHead>Nom</TableHead>
             <TableHead>Entreprise</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead className="hidden md:table-cell">Assigne a</TableHead>
-            <TableHead className="hidden lg:table-cell">Priorite</TableHead>
+            <TableHead className="hidden md:table-cell">Assigné à</TableHead>
+            <TableHead className="hidden lg:table-cell">Priorité</TableHead>
+            <TableHead className="hidden xl:table-cell">Montant</TableHead>
+            <TableHead className="hidden xl:table-cell">Relance</TableHead>
             <TableHead className="w-10" />
           </TableRow>
         </TableHeader>
         <TableBody>
           {contacts.map((contact) => (
-            <TableRow key={contact.id}>
+            <TableRow key={contact.id} className="border-white/[0.04] hover:bg-white/[0.03]">
               <TableCell>
                 <Link
                   href={`/contacts/${contact.id}`}
@@ -100,7 +102,7 @@ export function ContactList({ contacts }: ContactListProps) {
                   </Badge>
                 ) : (
                   <span className="text-muted-foreground text-sm">
-                    Non assigne
+                    Non assigné
                   </span>
                 )}
               </TableCell>
@@ -116,6 +118,30 @@ export function ContactList({ contacts }: ContactListProps) {
                 >
                   {contact.priority}
                 </Badge>
+              </TableCell>
+              <TableCell className="hidden xl:table-cell">
+                {contact.deal_amount != null ? (
+                  <span className="text-sm">
+                    {contact.deal_amount.toLocaleString('fr-FR')} €
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">-</span>
+                )}
+              </TableCell>
+              <TableCell className="hidden xl:table-cell">
+                {contact.next_followup_at ? (() => {
+                  const followupDate = new Date(contact.next_followup_at)
+                  const today = new Date()
+                  today.setHours(0, 0, 0, 0)
+                  const isOverdue = followupDate <= today
+                  return (
+                    <span className={isOverdue ? 'text-sm text-destructive font-medium' : 'text-sm'}>
+                      {followupDate.toLocaleDateString('fr-FR')}
+                    </span>
+                  )
+                })() : (
+                  <span className="text-muted-foreground">-</span>
+                )}
               </TableCell>
               <TableCell>
                 <DropdownMenu>

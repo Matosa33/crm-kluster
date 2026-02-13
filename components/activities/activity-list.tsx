@@ -41,7 +41,7 @@ export function ActivityList({ activities, contactId }: ActivityListProps) {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer cette activite ?')) return
+    if (!confirm('Supprimer cette activité ?')) return
     await deleteActivity(id, contactId)
     router.refresh()
   }
@@ -49,7 +49,7 @@ export function ActivityList({ activities, contactId }: ActivityListProps) {
   if (activities.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-4">
-        Aucune activite enregistree
+        Aucune activité enregistrée
       </p>
     )
   }
@@ -75,7 +75,7 @@ export function ActivityList({ activities, contactId }: ActivityListProps) {
                 </Badge>
                 {isCompleted && (
                   <Badge variant="outline" className="text-xs text-green-600">
-                    Termine
+                    Terminé
                   </Badge>
                 )}
               </div>
@@ -95,7 +95,7 @@ export function ActivityList({ activities, contactId }: ActivityListProps) {
                 </span>
                 {activity.scheduled_at && (
                   <span>
-                    | Prevu le{' '}
+                    | Prévu le{' '}
                     {new Date(activity.scheduled_at).toLocaleDateString(
                       'fr-FR',
                       {
@@ -115,7 +115,7 @@ export function ActivityList({ activities, contactId }: ActivityListProps) {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  title="Marquer comme termine"
+                  title="Marquer comme terminé"
                   onClick={() => handleComplete(activity.id)}
                 >
                   <Check className="h-4 w-4" />

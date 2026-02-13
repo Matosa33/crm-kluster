@@ -12,7 +12,7 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Parametres</h1>
+        <h1 className="text-3xl font-bold">Paramètres</h1>
         <p className="text-muted-foreground mt-1">
           Configuration de votre compte
         </p>
@@ -25,8 +25,8 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarFallback className="text-lg">
+              <Avatar className="h-16 w-16 ring-2 ring-primary/20">
+                <AvatarFallback className="text-lg bg-primary/20 text-primary">
                   {currentUser?.full_name
                     ?.split(' ')
                     .map((n) => n[0])
@@ -49,14 +49,14 @@ export default async function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Equipe</CardTitle>
+            <CardTitle>Équipe</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {allUsers.map((user) => (
-                <div key={user.id} className="flex items-center gap-3 p-2">
+                <div key={user.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors">
                   <Avatar className="h-10 w-10">
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-primary/15 text-primary text-sm">
                       {user.full_name
                         .split(' ')
                         .map((n) => n[0])
@@ -88,7 +88,7 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p className="text-muted-foreground">
-              Les cles API sont configurees dans les variables d&apos;environnement
+              Les clés API sont configurées dans les variables d&apos;environnement
               du serveur. Contactez l&apos;administrateur pour les modifier.
             </p>
             <div className="flex gap-2">

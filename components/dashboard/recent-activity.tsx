@@ -32,12 +32,12 @@ export function RecentActivity({ activities }: RecentActivityProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Activite recente</CardTitle>
+        <CardTitle>Activité récente</CardTitle>
       </CardHeader>
       <CardContent>
         {activities.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Aucune activite recente
+            Aucune activité récente
           </p>
         ) : (
           <div className="space-y-4">
@@ -45,8 +45,8 @@ export function RecentActivity({ activities }: RecentActivityProps) {
               const Icon = activityIcons[activity.type]
               return (
                 <div key={activity.id} className="flex items-start gap-3">
-                  <div className="p-2 rounded-full bg-muted">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Icon className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">

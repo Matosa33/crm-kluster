@@ -80,7 +80,7 @@ export function ContactFilters({ users }: ContactFiltersProps) {
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={clearFilters}>
           <X className="mr-1 h-4 w-4" />
-          Reinitialiser
+          Réinitialiser
         </Button>
       )}
     </div>

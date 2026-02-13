@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FuzzySelect } from '@/components/shared/fuzzy-select'
 import { STATUS_ORDER, STATUS_CONFIG } from '@/lib/constants/status-config'
 import type { Contact, Company, Profile, ContactStatus, ContactPriority } from '@/lib/types'
 
@@ -49,6 +50,9 @@ export function ContactForm({ contact, companies, users }: ContactFormProps) {
       assigned_to: assignedTo || null,
       status: status as Contact['status'],
       priority: priority as Contact['priority'],
+      deal_amount: formData.get('deal_amount') ? parseFloat(formData.get('deal_amount') as string) : null,
+      next_followup_at: (formData.get('next_followup_at') as string) ? new Date(formData.get('next_followup_at') as string).toISOString() : null,
+      lost_reason: (formData.get('lost_reason') as string) || null,
     }
 
     try {
@@ -69,7 +73,7 @@ export function ContactForm({ contact, companies, users }: ContactFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="first_name">Prenom</Label>
+          <Label htmlFor="first_name">Prénom</Label>
           <Input
             id="first_name"
             name="first_name"
@@ -97,7 +101,7 @@ export function ContactForm({ contact, companies, users }: ContactFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Telephone</Label>
+          <Label htmlFor="phone">Téléphone</Label>
           <Input
             id="phone"
             name="phone"
@@ -111,25 +115,20 @@ export function ContactForm({ contact, companies, users }: ContactFormProps) {
           <Input
             id="position"
             name="position"
-            placeholder="Gerant, Directeur..."
+            placeholder="Gérant, Directeur..."
             defaultValue={contact?.position || ''}
           />
         </div>
 
         <div className="space-y-2">
           <Label>Entreprise</Label>
-          <Select value={companyId} onValueChange={setCompanyId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selectionner..." />
-            </SelectTrigger>
-            <SelectContent>
-              {companies.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FuzzySelect
+            options={companies.map((c) => ({ value: c.id, label: c.name }))}
+            value={companyId}
+            onChange={setCompanyId}
+            placeholder="Rechercher une entreprise..."
+            emptyLabel="Aucune entreprise"
+          />
         </div>
 
         <div className="space-y-2">
@@ -149,7 +148,7 @@ export function ContactForm({ contact, companies, users }: ContactFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label>Priorite</Label>
+          <Label>Priorité</Label>
           <Select value={priority} onValueChange={(v) => setPriority(v as ContactPriority)}>
             <SelectTrigger>
               <SelectValue />
@@ -163,10 +162,10 @@ export function ContactForm({ contact, companies, users }: ContactFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label>Assigne a</Label>
+          <Label>Assigné à</Label>
           <Select value={assignedTo} onValueChange={setAssignedTo}>
             <SelectTrigger>
-              <SelectValue placeholder="Non assigne" />
+              <SelectValue placeholder="Non assigné" />
             </SelectTrigger>
             <SelectContent>
               {users.map((u) => (
@@ -190,6 +189,49 @@ export function ContactForm({ contact, companies, users }: ContactFormProps) {
         </div>
       </div>
 
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Informations commerciales</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="deal_amount">Montant du devis (€)</Label>
+            <Input
+              id="deal_amount"
+              name="deal_amount"
+              type="number"
+              step="0.01"
+              defaultValue={contact?.deal_amount ?? ''}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="next_followup_at">Prochaine relance</Label>
+            <Input
+              id="next_followup_at"
+              name="next_followup_at"
+              type="date"
+              defaultValue={
+                contact?.next_followup_at
+                  ? new Date(contact.next_followup_at).toISOString().split('T')[0]
+                  : ''
+              }
+            />
+          </div>
+
+          {status === 'perdu' && (
+            <div className="md:col-span-2 space-y-2">
+              <Label htmlFor="lost_reason">Raison de la perte</Label>
+              <Textarea
+                id="lost_reason"
+                name="lost_reason"
+                rows={3}
+                placeholder="Raison pour laquelle le contact a été perdu..."
+                defaultValue={contact?.lost_reason || ''}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="flex gap-4">
@@ -198,7 +240,7 @@ export function ContactForm({ contact, companies, users }: ContactFormProps) {
             ? 'Enregistrement...'
             : contact
               ? 'Modifier'
-              : 'Creer le contact'}
+              : 'Créer le contact'}
         </Button>
         <Button
           type="button"

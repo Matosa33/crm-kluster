@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import type { Contact, Company, Profile, ContactStatus } from '@/lib/types'
+import type { Contact, Company, Profile, ContactStatus, ContactForKanban } from '@/lib/types'
 
 type ContactWithRelations = Contact & {
   company: Pick<Company, 'id' | 'name' | 'city' | 'business_type'> | null
@@ -80,6 +80,9 @@ export async function createContact(data: {
   assigned_to?: string | null
   status?: ContactStatus
   priority?: 'basse' | 'moyenne' | 'haute'
+  deal_amount?: number | null
+  next_followup_at?: string | null
+  lost_reason?: string | null
 }) {
   const supabase = await createClient()
   const {
@@ -108,6 +111,9 @@ export async function updateContact(
     assigned_to?: string | null
     status?: ContactStatus
     priority?: 'basse' | 'moyenne' | 'haute'
+    deal_amount?: number | null
+    next_followup_at?: string | null
+    lost_reason?: string | null
   }
 ) {
   const supabase = await createClient()
@@ -181,6 +187,81 @@ type StatusChangeWithUser = {
   user: Pick<Profile, 'id' | 'full_name'> | null
 }
 
+// -- Kanban actions --
+
+const ALLOWED_INLINE_FIELDS = [
+  'deal_amount',
+  'next_followup_at',
+  'priority',
+  'assigned_to',
+  'notes',
+  'lost_reason',
+] as const
+
+export async function getContactsForKanban() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('contacts')
+    .select(
+      `
+      id, first_name, last_name, status, priority, deal_amount, next_followup_at, updated_at,
+      company:companies!contacts_company_id_fkey(id, name),
+      assigned_user:profiles!contacts_assigned_to_fkey(id, full_name)
+    `
+    )
+    .order('updated_at', { ascending: false })
+
+  if (error) throw error
+
+  return (data as unknown as ContactForKanban[]) || []
+}
+
+export async function updateContactField(
+  id: string,
+  field: string,
+  value: unknown
+) {
+  if (!ALLOWED_INLINE_FIELDS.includes(field as (typeof ALLOWED_INLINE_FIELDS)[number])) {
+    throw new Error(`Champ non autorisé : ${field}`)
+  }
+
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('contacts')
+    .update({ [field]: value } as never)
+    .eq('id', id)
+
+  if (error) throw error
+  revalidatePath('/contacts')
+  revalidatePath(`/contacts/${id}`)
+  revalidatePath('/tableau-de-bord')
+}
+
+export async function quickCreateContact(data: {
+  first_name: string
+  company_id?: string | null
+  status: ContactStatus
+}) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const { error } = await supabase.from('contacts').insert({
+    first_name: data.first_name,
+    company_id: data.company_id || null,
+    status: data.status,
+    priority: 'moyenne',
+    created_by: user?.id,
+  } as never)
+
+  if (error) throw error
+  revalidatePath('/contacts')
+  revalidatePath('/tableau-de-bord')
+}
+
 export async function getStatusChanges(contactId: string): Promise<StatusChangeWithUser[]> {
   const supabase = await createClient()
 
@@ -197,4 +278,24 @@ export async function getStatusChanges(contactId: string): Promise<StatusChangeW
 
   if (error) throw error
   return (data as unknown as StatusChangeWithUser[]) || []
+}
+
+export async function getContactsByCompany(companyId: string) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('contacts')
+    .select('id, first_name, last_name, status, deal_amount, job_title')
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data as unknown as {
+    id: string
+    first_name: string | null
+    last_name: string | null
+    status: string
+    deal_amount: number | null
+    job_title: string | null
+  }[]) || []
 }

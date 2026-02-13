@@ -1,10 +1,9 @@
 import Link from 'next/link'
-import { getContact, getStatusChanges } from '@/lib/actions/contacts'
-import { getActivities } from '@/lib/actions/activities'
+import { getContact } from '@/lib/actions/contacts'
+import { getContactTimeline } from '@/lib/actions/timeline'
 import { StatusSelect } from '@/components/contacts/status-select'
-import { StatusBadge } from '@/components/contacts/status-badge'
 import { ActivityForm } from '@/components/activities/activity-form'
-import { ActivityList } from '@/components/activities/activity-list'
+import { ContactTimeline } from '@/components/timeline/contact-timeline'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -15,11 +14,10 @@ import {
   Pencil,
   ArrowLeft,
   User,
-  Clock,
+  Euro,
+  CalendarClock,
   Activity,
 } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
 
 export default async function ContactDetailPage({
   params,
@@ -27,10 +25,9 @@ export default async function ContactDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [contact, statusChanges, activities] = await Promise.all([
+  const [contact, timeline] = await Promise.all([
     getContact(id),
-    getStatusChanges(id),
-    getActivities(id),
+    getContactTimeline(id),
   ])
 
   return (
@@ -58,6 +55,7 @@ export default async function ContactDetailPage({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left column: Status + Timeline */}
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
@@ -71,6 +69,23 @@ export default async function ContactDetailPage({
             </CardContent>
           </Card>
 
+          {/* Unified timeline */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Timeline
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ActivityForm contactId={id} />
+              <ContactTimeline events={timeline} />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column: Contact info */}
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Informations</CardTitle>
@@ -116,7 +131,7 @@ export default async function ContactDetailPage({
                 <div className="flex items-center gap-3">
                   <User className="h-5 w-5 text-muted-foreground" />
                   <span className="text-sm">
-                    Assigne a{' '}
+                    Assigné à{' '}
                     <Badge variant="outline">
                       {contact.assigned_user.full_name}
                     </Badge>
@@ -126,7 +141,7 @@ export default async function ContactDetailPage({
 
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground">
-                  Priorite :
+                  Priorité :
                 </span>
                 <Badge
                   variant={
@@ -145,71 +160,61 @@ export default async function ContactDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm whitespace-pre-wrap">
-                {contact.notes || 'Aucune note'}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Activites
-              </CardTitle>
+              <CardTitle>Commercial</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <ActivityForm contactId={id} />
-              <ActivityList activities={activities} contactId={id} />
-            </CardContent>
-          </Card>
-        </div>
+              <div className="flex items-center gap-3">
+                <Euro className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm">
+                  {contact.deal_amount != null
+                    ? `${contact.deal_amount.toLocaleString('fr-FR')} EUR`
+                    : 'Non défini'}
+                </span>
+              </div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Historique des statuts
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {statusChanges.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Aucun changement de statut
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {statusChanges.map((change) => (
-                    <div key={change.id} className="border-l-2 border-border pl-4 pb-4">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {change.old_status && (
-                          <>
-                            <StatusBadge status={change.old_status} />
-                            <span className="text-xs">→</span>
-                          </>
-                        )}
-                        <StatusBadge status={change.new_status} />
-                      </div>
-                      {change.note && (
-                        <p className="text-sm mt-1">{change.note}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {change.user?.full_name} -{' '}
-                        {formatDistanceToNow(new Date(change.created_at), {
-                          addSuffix: true,
-                          locale: fr,
-                        })}
-                      </p>
-                    </div>
-                  ))}
+              <div className="flex items-center gap-3">
+                <CalendarClock className="h-5 w-5 text-muted-foreground" />
+                {contact.next_followup_at ? (() => {
+                  const followupDate = new Date(contact.next_followup_at)
+                  const today = new Date()
+                  today.setHours(0, 0, 0, 0)
+                  const isOverdue = followupDate < today
+                  return (
+                    <span className={isOverdue ? 'text-sm text-destructive font-medium' : 'text-sm'}>
+                      {followupDate.toLocaleDateString('fr-FR')}
+                      {isOverdue && ' - En retard'}
+                    </span>
+                  )
+                })() : (
+                  <span className="text-sm text-muted-foreground">
+                    Aucune relance planifiée
+                  </span>
+                )}
+              </div>
+
+              {contact.status === 'perdu' && contact.lost_reason && (
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Raison de la perte</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {contact.lost_reason}
+                  </p>
                 </div>
               )}
             </CardContent>
           </Card>
+
+          {contact.notes && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Notes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm whitespace-pre-wrap">
+                  {contact.notes}
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

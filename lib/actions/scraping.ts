@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { processJob } from '@/lib/scraping/process-job'
 import type { ScrapeJob, Profile } from '@/lib/types'
 
 type ScrapeJobWithUser = ScrapeJob & {
@@ -26,7 +27,10 @@ export async function getScrapeJobs(): Promise<ScrapeJobWithUser[]> {
   return (data as unknown as ScrapeJobWithUser[]) || []
 }
 
-export async function createScrapeJob(data: { query: string; city: string }) {
+export async function createScrapeJob(data: {
+  query: string
+  city: string
+}): Promise<{ id?: string; count?: number; api?: string; error?: string }> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -42,27 +46,28 @@ export async function createScrapeJob(data: { query: string; city: string }) {
     .select()
     .single()
 
-  if (error) throw error
+  if (error) {
+    return { error: `Erreur création du job : ${error.message}` }
+  }
 
   const jobData = job as unknown as { id: string }
 
-  // Trigger the scraping API route
-  try {
-    const origin = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : 'http://localhost:3000'
-
-    await fetch(`${origin}/api/scrape`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jobId: jobData.id }),
-    }).catch(() => {
-      // API route may not be available, job will be picked up by cron
-    })
-  } catch {
-    // Silently fail - the cron will pick it up
-  }
+  // Process the job directly (no more HTTP self-call)
+  const result = await processJob(jobData.id)
 
   revalidatePath('/scraping')
-  return jobData
+  revalidatePath('/entreprises')
+
+  if (!result.success) {
+    return {
+      id: jobData.id,
+      error: result.error || 'Erreur lors du scraping',
+    }
+  }
+
+  return {
+    id: jobData.id,
+    count: result.count,
+    api: result.api,
+  }
 }

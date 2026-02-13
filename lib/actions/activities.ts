@@ -34,6 +34,9 @@ export async function createActivity(data: {
   subject: string
   description?: string | null
   scheduled_at?: string | null
+  duration_minutes?: number | null
+  location?: string | null
+  meeting_notes?: string | null
 }) {
   const supabase = await createClient()
   const {
@@ -60,6 +63,31 @@ export async function completeActivity(id: string, contactId: string) {
 
   if (error) throw error
   revalidatePath(`/contacts/${contactId}`)
+}
+
+export async function updateActivity(
+  id: string,
+  contactId: string,
+  data: {
+    subject?: string
+    description?: string | null
+    scheduled_at?: string | null
+    duration_minutes?: number | null
+    location?: string | null
+    meeting_notes?: string | null
+  }
+) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('activities')
+    .update(data as never)
+    .eq('id', id)
+
+  if (error) throw error
+  revalidatePath(`/contacts/${contactId}`)
+  revalidatePath('/calendrier')
+  revalidatePath('/tableau-de-bord')
 }
 
 export async function deleteActivity(id: string, contactId: string) {

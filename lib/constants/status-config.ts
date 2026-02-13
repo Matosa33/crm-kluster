@@ -2,37 +2,49 @@ import type { ContactStatus } from '@/lib/types'
 
 export const STATUS_CONFIG: Record<
   ContactStatus,
-  { label: string; color: string; bgColor: string }
+  { label: string; color: string; bgColor: string; dropColor: string; accent: string }
 > = {
   a_contacter: {
-    label: 'A contacter',
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-200',
+    label: 'À contacter',
+    color: 'text-slate-300',
+    bgColor: 'bg-slate-500/20 ring-1 ring-slate-500/30',
+    dropColor: 'ring-2 ring-slate-400/40',
+    accent: 'bg-slate-500',
   },
   contacte: {
-    label: 'Contacte',
-    color: 'text-blue-700',
-    bgColor: 'bg-blue-100',
+    label: 'Contacté',
+    color: 'text-blue-300',
+    bgColor: 'bg-blue-500/20 ring-1 ring-blue-500/30',
+    dropColor: 'ring-2 ring-blue-400/40',
+    accent: 'bg-blue-500',
   },
   rdv_planifie: {
-    label: 'RDV planifie',
-    color: 'text-yellow-700',
-    bgColor: 'bg-yellow-100',
+    label: 'RDV planifié',
+    color: 'text-amber-300',
+    bgColor: 'bg-amber-500/20 ring-1 ring-amber-500/30',
+    dropColor: 'ring-2 ring-amber-400/40',
+    accent: 'bg-amber-500',
   },
   devis_envoye: {
-    label: 'Devis envoye',
-    color: 'text-orange-700',
-    bgColor: 'bg-orange-100',
+    label: 'Devis envoyé',
+    color: 'text-orange-300',
+    bgColor: 'bg-orange-500/20 ring-1 ring-orange-500/30',
+    dropColor: 'ring-2 ring-orange-400/40',
+    accent: 'bg-orange-500',
   },
   gagne: {
-    label: 'Gagne',
-    color: 'text-green-700',
-    bgColor: 'bg-green-100',
+    label: 'Gagné',
+    color: 'text-emerald-300',
+    bgColor: 'bg-emerald-500/20 ring-1 ring-emerald-500/30',
+    dropColor: 'ring-2 ring-emerald-400/40',
+    accent: 'bg-emerald-500',
   },
   perdu: {
     label: 'Perdu',
-    color: 'text-red-700',
-    bgColor: 'bg-red-100',
+    color: 'text-rose-300',
+    bgColor: 'bg-rose-500/20 ring-1 ring-rose-500/30',
+    dropColor: 'ring-2 ring-rose-400/40',
+    accent: 'bg-rose-500',
   },
 }
 

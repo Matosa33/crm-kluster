@@ -11,6 +11,8 @@ export type ContactStatus = Database['public']['Enums']['contact_status']
 export type ActivityType = Database['public']['Enums']['activity_type']
 export type ContactPriority = Database['public']['Enums']['contact_priority']
 export type ScrapeStatusEnum = Database['public']['Enums']['scrape_status']
+export type WebsiteStatus = Database['public']['Enums']['website_status']
+export type WebsiteQuality = Database['public']['Enums']['website_quality']
 
 export type CompanyInsert = Database['public']['Tables']['companies']['Insert']
 export type CompanyUpdate = Database['public']['Tables']['companies']['Update']
@@ -25,4 +27,40 @@ export type ContactWithCompany = Contact & {
 
 export type ActivityWithUser = Activity & {
   user: Profile | null
+}
+
+export type CalendarActivity = {
+  id: string
+  contact_id: string
+  type: ActivityType
+  subject: string
+  description: string | null
+  scheduled_at: string
+  completed_at: string | null
+  duration_minutes: number | null
+  location: string | null
+  attendees: string[]
+  meeting_notes: string | null
+  created_at: string
+  contact: {
+    id: string
+    first_name: string | null
+    last_name: string | null
+    company: { id: string; name: string } | null
+    deal_amount: number | null
+  } | null
+  user: { id: string; full_name: string } | null
+}
+
+export type ContactForKanban = {
+  id: string
+  first_name: string | null
+  last_name: string | null
+  status: ContactStatus
+  priority: 'basse' | 'moyenne' | 'haute'
+  deal_amount: number | null
+  next_followup_at: string | null
+  updated_at: string
+  company: { id: string; name: string } | null
+  assigned_user: { id: string; full_name: string } | null
 }

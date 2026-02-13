@@ -80,7 +80,7 @@ export function StatusSelect({ contactId, currentStatus }: StatusSelectProps) {
           <DialogHeader>
             <DialogTitle>Changer le statut</DialogTitle>
             <DialogDescription>
-              Passer de &quot;{STATUS_CONFIG[currentStatus].label}&quot; a
+              Passer de &quot;{STATUS_CONFIG[currentStatus].label}&quot; à
               &quot;
               {selectedStatus && STATUS_CONFIG[selectedStatus].label}&quot;
             </DialogDescription>

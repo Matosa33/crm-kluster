@@ -30,12 +30,12 @@ const statusConfig = {
     variant: 'default' as const,
   },
   completed: {
-    label: 'Termine',
+    label: 'Terminé',
     icon: CheckCircle,
     variant: 'default' as const,
   },
   failed: {
-    label: 'Echoue',
+    label: 'Échoué',
     icon: XCircle,
     variant: 'destructive' as const,
   },
@@ -45,22 +45,22 @@ export function ScrapeJobList({ jobs }: ScrapeJobListProps) {
   if (jobs.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground">Aucun scraping effectue</p>
+        <p className="text-muted-foreground">Aucune recherche effectuée</p>
       </div>
     )
   }
 
   return (
-    <div className="border rounded-lg overflow-x-auto">
+    <div className="overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="border-white/[0.06] hover:bg-transparent">
             <TableHead>Recherche</TableHead>
             <TableHead>Ville</TableHead>
             <TableHead>Statut</TableHead>
-            <TableHead>Resultats</TableHead>
+            <TableHead>Résultats</TableHead>
             <TableHead className="hidden md:table-cell">API</TableHead>
-            <TableHead className="hidden md:table-cell">Cree par</TableHead>
+            <TableHead className="hidden md:table-cell">Créé par</TableHead>
             <TableHead className="hidden lg:table-cell">Date</TableHead>
           </TableRow>
         </TableHeader>
@@ -69,7 +69,7 @@ export function ScrapeJobList({ jobs }: ScrapeJobListProps) {
             const config = statusConfig[job.status]
             const StatusIcon = config.icon
             return (
-              <TableRow key={job.id}>
+              <TableRow key={job.id} className="border-white/[0.04] hover:bg-white/[0.03]">
                 <TableCell className="font-medium">{job.query}</TableCell>
                 <TableCell>{job.city}</TableCell>
                 <TableCell>

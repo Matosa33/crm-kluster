@@ -20,10 +20,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, Eye, Pencil, Trash2, Globe, Phone } from 'lucide-react'
-import type { Company } from '@/lib/types'
+import type { CompanyWithStatus } from '@/lib/actions/companies'
+import type { ContactStatus } from '@/lib/types'
+import { WEBSITE_STATUS_CONFIG } from '@/lib/constants/website-config'
+import { STATUS_CONFIG } from '@/lib/constants/status-config'
 
 interface CompanyListProps {
-  companies: Company[]
+  companies: CompanyWithStatus[]
 }
 
 export function CompanyList({ companies }: CompanyListProps) {
@@ -38,20 +41,22 @@ export function CompanyList({ companies }: CompanyListProps) {
   if (companies.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Aucune entreprise trouvee</p>
+        <p className="text-muted-foreground">Aucune entreprise trouvée</p>
       </div>
     )
   }
 
   return (
-    <div className="border rounded-lg overflow-x-auto">
+    <div className="glass-card rounded-xl overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="border-white/[0.06] hover:bg-transparent">
             <TableHead>Nom</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Ville</TableHead>
-            <TableHead className="hidden md:table-cell">Telephone</TableHead>
+            <TableHead>Statut</TableHead>
+            <TableHead className="hidden sm:table-cell">Site</TableHead>
+            <TableHead className="hidden md:table-cell">Téléphone</TableHead>
             <TableHead className="hidden lg:table-cell">Site web</TableHead>
             <TableHead className="hidden lg:table-cell">Source</TableHead>
             <TableHead className="w-10" />
@@ -59,7 +64,7 @@ export function CompanyList({ companies }: CompanyListProps) {
         </TableHeader>
         <TableBody>
           {companies.map((company) => (
-            <TableRow key={company.id}>
+            <TableRow key={company.id} className="border-white/[0.04] hover:bg-white/[0.03]">
               <TableCell>
                 <Link
                   href={`/entreprises/${company.id}`}
@@ -72,6 +77,33 @@ export function CompanyList({ companies }: CompanyListProps) {
                 <Badge variant="secondary">{company.business_type}</Badge>
               </TableCell>
               <TableCell>{company.city}</TableCell>
+              <TableCell>
+                {company.bestContactStatus ? (() => {
+                  const config = STATUS_CONFIG[company.bestContactStatus as ContactStatus]
+                  return (
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${config.bgColor} ${config.color}`}
+                    >
+                      {config.label}
+                    </span>
+                  )
+                })() : (
+                  <span className="text-xs text-muted-foreground/50">—</span>
+                )}
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">
+                {(() => {
+                  const status = company.website_status || 'inconnu'
+                  const config = WEBSITE_STATUS_CONFIG[status]
+                  return (
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${config.color} ${config.bgColor}`}
+                    >
+                      {config.label}
+                    </span>
+                  )
+                })()}
+              </TableCell>
               <TableCell className="hidden md:table-cell">
                 {company.phone ? (
                   <a
